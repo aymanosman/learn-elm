@@ -10,7 +10,7 @@ main =
   StartApp.start {
     model = init
     , view = view
-    , update = withDebug update
+    , update = withLast << withDebug <| update
   }
 
 -- Model
@@ -19,10 +19,11 @@ type alias Model = {
   query : String
   , selection : Maybe String
   , hl : Int
+  , lastAction : Action
   }
 
 init : Model
-init = Model "d" (Just "Dean") 1 -- "" Nothing
+init = Model "d" (Just "Dean") 1 NoOp -- "" Nothing
 
 type alias Friend = {
   name : String
@@ -60,6 +61,11 @@ update action model =
       {model | hl <- model.hl - 1}
 
 withDebug update action model = (update action model) |> Debug.watch "State"
+
+withLast update action model =
+    let m2 = update action model
+    in
+    {m2 | lastAction <- action}
 
 -- View
 
