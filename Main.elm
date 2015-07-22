@@ -30,10 +30,10 @@ type alias Friend = {
   , photo : String
   }
 
-friends : Dict Int Friend
-friends =
-  Dict.fromList <|
-      List.map2 (,) [1..100] [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
+friends : List Friend
+friends = [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
+--  Dict.fromList <|
+--     List.map2 (,) [1..100]
 
 f : String -> String -> Friend
 f a b = Friend a b
@@ -79,17 +79,18 @@ view address model =
           ] []
       handleSelect f = onClick address (Select f.name)
       results =
-        let filtered : Dict Int Friend
+        let filtered : List Friend
             filtered =
                 case model.query of
-                    "" -> Dict.empty
-                    s -> Dict.filter (\k v -> matches s v) friends
+                    "" -> []
+                    s -> List.filter (matches s) friends
 
+            tagged = Dict.fromList <| List.map2 (,) [1..List.length filtered] filtered
             rendered =
                 Dict.values <|
                 Dict.map
                 (\k v -> viewFriend handleSelect model.hl (k,v))
-                filtered
+                tagged
 
         in
         ul [] rendered
