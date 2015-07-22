@@ -74,8 +74,8 @@ view address model =
   let qInput =
         input
           [on "input" targetValue (Signal.message address << Query)
-          , onArrow Down Next address
           , onArrow Up Prev address
+          , onArrow Down Next address
           -- , onKeyPress address (handleKeyPress (List.head friends |> .name))
           , value model.query
           ] []
@@ -116,12 +116,12 @@ type Dir = Unknown | Up | Down
 onArrow : Dir -> Action -> Signal.Address Action ->  Attribute
 onArrow dir a addr =
   onKeyDown addr (\k ->
-      case translate k of
-          Unknown -> log "NoOp" NoOp
-          dir -> log (toString a ++ "!!!") a)
+      case translate (log (toString dir) k) of
+          Unknown -> NoOp
+          dir -> a)
 
 translate k =
     case k of
-        38 -> log "up" Up
-        40 -> log "down" Down
-        _ -> log "unkown" Unknown
+        38 -> Up
+        40 -> Down
+        _ -> Unknown
