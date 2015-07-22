@@ -16,7 +16,6 @@ main =
 
 type alias Model = {
   query : String
-  , friends : List Friend
   , selection : Maybe String
   }
 
@@ -26,7 +25,7 @@ type alias Friend = {
   }
 
 init : Model
-init = Model "" friends Nothing
+init = Model "d" (Just "Dean") -- "" Nothing
 friends =
   [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
 
@@ -62,7 +61,7 @@ view address model =
         let filtered =
           case model.query of
             "" -> []
-            s -> filterFriends address s model.friends
+            s -> filterFriends address s friends
         in
         ul [] filtered
       selection  =
