@@ -40,7 +40,8 @@ f a b = Friend a b
 type Action = NoOp
   | Query String
   | Select Id -- change to Int and pick from Dict
-  | HightlightNext
+  | Next
+  | Prev
 
 type alias Id = String
 
@@ -53,8 +54,10 @@ update action model =
       {model | query <- t}
     Select n ->
       {model | selection <- Just n}
-    HightlightNext ->
+    Next ->
       {model | hl <- model.hl + 1}
+    Prev ->
+      {model | hl <- model.hl - 1}
 
 withDebug update action model = (update action model) |> Debug.watch "State"
 
@@ -65,7 +68,8 @@ view address model =
   let qInput =
         input
           [on "input" targetValue (Signal.message address << Query)
-          , onDownArrow address HightlightNext
+          , onArrow Down address Next
+          , onArrow Up address Prev
           -- , onKeyPress address (handleKeyPress (List.head friends |> .name))
           , value model.query
           ] []
@@ -101,9 +105,17 @@ handleKeyPress n k =
     case k of
         39 -> Select n
 
-onDownArrow addr a =
-    onKeyDown addr (\k ->
-        case k of
-            40 -> HightlightNext
-            -- 13 Enter
-            _ -> NoOp)
+type Dir = Unknown | Up | Down
+
+onArrow : Dir -> Signal.Address Action -> Action -> Attribute
+onArrow dir addr a =
+  onKeyDown addr (\k ->
+      case translate k of
+          Unknown -> NoOp
+          dir -> a)
+
+translate k =
+    case k of
+        40 -> Up
+        38 -> Down
+        _ -> Unknown
