@@ -57,11 +57,13 @@ view address model =
           [on "input" targetValue (Signal.message address << Query)
           , value model.query
           ] []
+      onclickFriend f = onClick address (Select f.name)
       results =
         let filtered =
           case model.query of
             "" -> []
-            s -> filterFriends address s friends
+            s ->
+              List.map (viewFriend onclickFriend) <| List.filter (matches s) friends
         in
         ul [] filtered
       selection  =
@@ -71,8 +73,7 @@ view address model =
   in
   div [] [qInput, results, selection]
 
-viewFriend address f = li [onClick address (Select f.name)] [text f.name, text f.photo]
-filterFriends address s fs =
-  List.map (viewFriend address)
-    <| List.filter (\f -> String.contains (String.toLower s) (String.toLower f.name)) fs
+viewFriend onclick f = li [onclick f] [text f.name, text f.photo]
+matches s f =
+  String.contains (String.toLower s) (String.toLower f.name)
 
