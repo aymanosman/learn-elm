@@ -73,7 +73,7 @@ view address model =
   in
   div [] [qInput, results, selection]
 
-viewFriend handleClick f = li [handleClick f] [text f.name, text f.photo]
+viewFriend handleSelect f = li [handleSelect f] [text f.name, text f.photo]
 matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
 
