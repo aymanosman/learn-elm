@@ -17,13 +17,18 @@ main =
 
 type alias Model = {
   query : String
-  , selected : Maybe String
+  , selected : Maybe Friend
   , highlighted : Int
   , lastAction : Action
   }
 
 init : Model
-init = Model "d" (Just "Dean") 1 NoOp -- "" Nothing
+init = {
+  query = "d"
+  , selected = Nothing
+  , highlighted = 1
+  , lastAction = NoOp
+  }
 
 type alias Friend = {
   name : String
@@ -35,7 +40,7 @@ f a b = Friend a b
 
 type Action = NoOp
   | Query String
-  | Select Id -- change to Int and pick from Dict
+  | ClickSelect Id -- change to Int and pick from Dict
   | EnterSelect
   | Next
   | Prev
@@ -49,15 +54,15 @@ update action model =
     NoOp -> model
     Query t ->
       {model | query <- t}
-    Select n ->
-      {model | selected <- Just n}
+    ClickSelect f ->
+      {model | selected <- Just f}
     EnterSelect ->
         let
             tagged = mkTagged model.query
         in
         case Dict.get model.highlighted tagged of
             Nothing -> model
-            Just f -> {model | selected <- Just f.name}
+            mf -> {model | selected <- mf}
     Next ->
       {model | highlighted <- model.highlighted + 1}
     Prev ->
@@ -80,7 +85,7 @@ view address model =
           , onKeyDown address (\k -> translate2 k)
           , value model.query
           ] []
-      handleSelect f = onClick address (Select f.name)
+      handleSelect f = onClick address (ClickSelect f.name)
       results =
           let
             tagged = mkTagged model.query
@@ -95,7 +100,7 @@ view address model =
       selection  =
         case model.selected of
           Nothing -> div [] []
-          Just x -> text x
+          Just f -> text f.name
   in
   div [] [qInput, results, selection]
 
