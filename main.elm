@@ -117,11 +117,11 @@ onArrow : Dir -> Signal.Address Action -> Action -> Attribute
 onArrow dir addr a =
   onKeyDown addr (\k ->
       case translate k of
-          Unknown -> NoOp
-          dir -> a)
+          Unknown -> Debug.log "NoOp" NoOp
+          dir -> Debug.log (toString a ++ "!!!") a)
 
 translate k =
     case k of
-        40 -> Up
-        38 -> Down
-        _ -> Unknown
+        38 -> Debug.log "up" Up
+        40 -> Debug.log "down" Down
+        _ -> Debug.log "unkown" Unknown
