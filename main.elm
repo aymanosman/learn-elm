@@ -89,7 +89,7 @@ view address model =
 viewFriend handleSelect hl (i, f) =
     let attrs : List Attribute
         attrs = [handleSelect f]
-        hlStyle = [style [("background-color", "salmon")]]
+        hlStyle = style [("background-color", "salmon")]
         attrs2 : List Attribute
         attrs2 = if hl == i then hlStyle::attrs else attrs
     in
