@@ -3,7 +3,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import String
-import Debug
+import Debug exposing (log)
 import StartApp
 
 main =
@@ -74,8 +74,8 @@ view address model =
   let qInput =
         input
           [on "input" targetValue (Signal.message address << Query)
-          , onArrow Down address Next
-          , onArrow Up address Prev
+          , onArrow Down Next address
+          , onArrow Up Prev address
           -- , onKeyPress address (handleKeyPress (List.head friends |> .name))
           , value model.query
           ] []
@@ -113,15 +113,15 @@ handleKeyPress n k =
 
 type Dir = Unknown | Up | Down
 
-onArrow : Dir -> Signal.Address Action -> Action -> Attribute
-onArrow dir addr a =
+onArrow : Dir -> Action -> Signal.Address Action ->  Attribute
+onArrow dir a addr =
   onKeyDown addr (\k ->
       case translate k of
-          Unknown -> Debug.log "NoOp" NoOp
-          dir -> Debug.log (toString a ++ "!!!") a)
+          Unknown -> log "NoOp" NoOp
+          dir -> log (toString a ++ "!!!") a)
 
 translate k =
     case k of
-        38 -> Debug.log "up" Up
-        40 -> Debug.log "down" Down
-        _ -> Debug.log "unkown" Unknown
+        38 -> log "up" Up
+        40 -> log "down" Down
+        _ -> log "unkown" Unknown
