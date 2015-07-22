@@ -9,7 +9,7 @@ main =
   StartApp.start {
     model = init
     , view = view
-    , update = update
+    , update = debugUpdate
   }
 
 -- Model
@@ -39,14 +39,13 @@ type alias Id = String
 -- Update
 
 update action model =
-  let x =
-      case action of
-        Query t ->
-          {model | query <- t}
-        Select n ->
-          {model | selection <- Just n}
-  in
-  x |> Debug.watch "State"
+  case action of
+    Query t ->
+      {model | query <- t}
+    Select n ->
+      {model | selection <- Just n}
+
+debugUpdate action model = (update action model) |> Debug.watch "State"
 
 -- View
 
