@@ -40,7 +40,7 @@ f a b = Friend a b
 
 type Action = NoOp
   | Query String
-  | ClickSelect Id -- change to Int and pick from Dict
+  | ClickSelect Friend -- was Id and compiler wasn't helping -- change to Int and pick from Dict
   | EnterSelect
   | Next
   | Prev
@@ -49,6 +49,7 @@ type alias Id = String
 
 -- Update
 
+update : Action -> Model -> Model
 update action model =
   case action of
     NoOp -> model
@@ -57,12 +58,11 @@ update action model =
     ClickSelect f ->
       {model | selected <- Just f}
     EnterSelect ->
-        let
-            tagged = mkTagged model.query
-        in
-        case Dict.get model.highlighted tagged of
+        let tagged = mkTagged model.query
+        in case Dict.get model.highlighted tagged of
             Nothing -> model
-            mf -> {model | selected <- mf}
+            mf ->
+              {model | selected <- mf}
     Next ->
       {model | highlighted <- model.highlighted + 1}
     Prev ->
