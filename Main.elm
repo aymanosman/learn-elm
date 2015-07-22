@@ -17,7 +17,7 @@ main =
 
 type alias Model = {
   query : String
-  , selection : Maybe String
+  , selected : Maybe String
   , hl : Int
   , lastAction : Action
   }
@@ -54,7 +54,7 @@ update action model =
     Query t ->
       {model | query <- t}
     Select n ->
-      {model | selection <- Just n}
+      {model | selected <- Just n}
     Next ->
       {model | hl <- model.hl + 1}
     Prev ->
@@ -74,22 +74,27 @@ view address model =
   let qInput =
         input
           [on "input" targetValue (Signal.message address << Query)
-          , onArrow Up Prev address
-          , onArrow Down Next address
-          -- , onKeyPress address (handleKeyPress (List.head friends |> .name))
+          , onKeyDown address (\k -> translate2 k)
           , value model.query
           ] []
       handleSelect f = onClick address (Select f.name)
       results =
-        let filtered =
-          case model.query of
-            "" -> []
-            s ->
-              List.map (viewFriend handleSelect model.hl) <| List.filter (matches s) <| Dict.toList friends
+        let filtered : Dict Int Friend
+            filtered =
+                case model.query of
+                    "" -> Dict.empty
+                    s -> Dict.filter (\k v -> matches s v) friends
+
+            rendered =
+                Dict.values <|
+                Dict.map
+                (\k v -> viewFriend handleSelect model.hl (k,v))
+                filtered
+
         in
-        ul [] filtered
+        ul [] rendered
       selection  =
-        case model.selection of
+        case model.selected of
           Nothing -> div [] []
           Just x -> text x
   in
@@ -104,24 +109,21 @@ viewFriend handleSelect hl (i, f) =
         attrs2 = if hl == i then hlStyle::attrs else attrs
     in
     li attrs2 [text f.name, text f.photo]
-matches s (_, f) =
+
+matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
 
-handleKeyPress n k =
-    case k of
-        39 -> Select n
 
-type Dir = Unknown | Up | Down
+translate2 k =
+  case k of
+    38 -> Prev
+    40 -> Next
+    _ -> NoOp
 
-onArrow : Dir -> Action -> Signal.Address Action ->  Attribute
-onArrow dir a addr =
-  onKeyDown addr (\k ->
-      case translate (log (toString dir) k) of
-          Unknown -> NoOp
-          dir -> a)
+-- type Dir = Unknown | Up | Down
+-- translate k =
+--     case k of
+--         38 -> Up
+--         40 -> Down
+--         _ -> Unknown
 
-translate k =
-    case k of
-        38 -> Up
-        40 -> Down
-        _ -> Unknown
