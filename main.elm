@@ -37,7 +37,10 @@ friends =
 f : String -> String -> Friend
 f a b = Friend a b
 
-type Action = NoOp | Query String | Select Id | HightlightNext
+type Action = NoOp
+  | Query String
+  | Select Id -- change to Int and pick from Dict
+  | HightlightNext
 
 type alias Id = String
 
@@ -72,7 +75,7 @@ view address model =
           case model.query of
             "" -> []
             s ->
-              List.map (viewFriend handleSelect) <| List.filter (matches s) <| Dict.values friends
+              List.map (viewFriend handleSelect model.hl) <| List.filter (matches s) <| Dict.toList friends
         in
         ul [] filtered
       selection  =
@@ -82,8 +85,16 @@ view address model =
   in
   div [] [qInput, results, selection]
 
-viewFriend handleSelect f = li [handleSelect f] [text f.name, text f.photo]
-matches s f =
+-- viewFriend : (Friend -> Attribute) -> Int -> (Int, Friend) -> Html
+viewFriend handleSelect hl (i, f) =
+    let attrs : List Attribute
+        attrs = [handleSelect f]
+        hlStyle = [style [("background-color", "salmon")]]
+        attrs2 : List Attribute
+        attrs2 = if hl == i then hlStyle::attrs else attrs
+    in
+    li attrs2 [text f.name, text f.photo]
+matches s (_, f) =
   String.contains (String.toLower s) (String.toLower f.name)
 
 handleKeyPress n k =
