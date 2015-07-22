@@ -9,7 +9,7 @@ main =
   StartApp.start {
     model = init
     , view = view
-    , update = debugUpdate
+    , update = withDebug update
   }
 
 -- Model
@@ -45,7 +45,7 @@ update action model =
     Select n ->
       {model | selection <- Just n}
 
-debugUpdate action model = (update action model) |> Debug.watch "State"
+withDebug update action model = (update action model) |> Debug.watch "State"
 
 -- View
 
