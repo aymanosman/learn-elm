@@ -10,7 +10,7 @@ main =
   StartApp.start {
     model = init
     , view = view
-    , update = withLast << withDebug <| update
+    , update = withDebug << withLast <| update
   }
 
 -- Model
@@ -29,11 +29,6 @@ type alias Friend = {
   name : String
   , photo : String
   }
-
-friends : List Friend
-friends = [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
---  Dict.fromList <|
---     List.map2 (,) [1..100]
 
 f : String -> String -> Friend
 f a b = Friend a b
@@ -114,17 +109,11 @@ viewFriend handleSelect hl (i, f) =
 matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
 
-
 translate2 k =
   case k of
     38 -> Prev
     40 -> Next
     _ -> NoOp
 
--- type Dir = Unknown | Up | Down
--- translate k =
---     case k of
---         38 -> Up
---         40 -> Down
---         _ -> Unknown
-
+friends : List Friend
+friends = [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
