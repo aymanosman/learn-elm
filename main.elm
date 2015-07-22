@@ -11,17 +11,8 @@ main =
     , view = view
     , update = update
   }
-  -- let
-  --     actions = (Signal.mailbox Nothing)
-  --     address = Signal.forwardTo actions.address Just
-  --     model =
-  --       Signal.foldp
-  --        (\(Just action) model -> update action model)
-  --        init
-  --        actions.signal
-  -- in
-  -- Signal.map (view address) model
 
+-- Model
 
 type alias Model = {
   query : String
@@ -36,6 +27,29 @@ type alias Friend = {
 
 init : Model
 init = Model "" friends Nothing
+friends =
+  [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
+
+f : String -> String -> Friend
+f a b = Friend a b
+
+type Action = Query String | Select Id
+
+type alias Id = String
+
+-- Update
+
+update action model =
+  let x =
+      case action of
+        Query t ->
+          {model | query <- t}
+        Select n ->
+          {model | selection <- Just n}
+  in
+  x |> Debug.watch "State"
+
+-- View
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -62,25 +76,4 @@ viewFriend address f = li [onClick address (Select f.name)] [text f.name, text f
 filterFriends address s fs =
   List.map (viewFriend address)
     <| List.filter (\f -> String.contains (String.toLower s) (String.toLower f.name)) fs
-
-type Action = Query String | Select Id
-
-type alias Id = String
-
-update action model =
-  let x =
-      case action of
-        Query t ->
-          {model | query <- t}
-        Select n ->
-          {model | selection <- Just n}
-  in
-  x |> Debug.watch "State"
-
-
-friends =
-  [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
-
-f : String -> String -> Friend
-f a b = Friend a b
 
