@@ -64,9 +64,15 @@ update action model =
             mf ->
               {model | selected <- mf}
     Next ->
-      {model | highlighted <- model.highlighted + 1}
+      let numFriends = List.length <| Dict.toList (mkTagged model.query)
+      in
+      if model.highlighted == numFriends
+      then model
+      else {model | highlighted <- model.highlighted + 1}
     Prev ->
-      {model | highlighted <- model.highlighted - 1}
+      if model.highlighted == 1
+      then model
+      else {model | highlighted <- model.highlighted - 1}
 
 withDebug update action model = (update action model) |> Debug.watch "State"
 
@@ -84,6 +90,7 @@ view address model =
           [on "input" targetValue (Signal.message address << Query)
           , onKeyDown address (\k -> translate2 k)
           , value model.query
+          , autofocus True
           ] []
       handleSelect f = onClick address (ClickSelect f)
       results =
