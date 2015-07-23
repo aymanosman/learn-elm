@@ -51,18 +51,20 @@ type alias Id = String
 
 update : Action -> Model -> Model
 update action model =
+  let select f m =
+        {m | query <- f.name, selected <- Just f}
+  in
   case action of
     NoOp -> model
     Query t ->
-      {model | query <- t}
+      {model | highlighted <- 1, query <- t}
     ClickSelect f ->
-      {model | selected <- Just f}
+      select f model
     EnterSelect ->
         let tagged = mkTagged model.query
         in case Dict.get model.highlighted tagged of
             Nothing -> model
-            mf ->
-              {model | selected <- mf}
+            Just f -> select f model
     Next ->
       let numFriends = List.length <| Dict.toList (mkTagged model.query)
       in
@@ -86,7 +88,7 @@ withLast update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   let handleKeyDown =
-        onWithOptions "keydown" {preventDefault = True, stopPropagation = True}
+        onWithOptions "keydown" {preventDefault = False, stopPropagation = False}
         keyCode
         (\k -> Signal.message address <| translate2 k)
       qInput =
