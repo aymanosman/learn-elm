@@ -85,10 +85,14 @@ withLast update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  let qInput =
+  let handleKeyDown =
+        onWithOptions "keydown" {preventDefault = True, stopPropagation = True}
+        keyCode
+        (\k -> Signal.message address <| translate2 k)
+      qInput =
         input
           [on "input" targetValue (Signal.message address << Query)
-          , onKeyDown address (\k -> translate2 k)
+          , handleKeyDown
           , value model.query
           , autofocus True
           ] []
