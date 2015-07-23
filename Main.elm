@@ -85,7 +85,7 @@ view address model =
           , onKeyDown address (\k -> translate2 k)
           , value model.query
           ] []
-      handleSelect f = onClick address (ClickSelect f.name)
+      handleSelect f = onClick address (ClickSelect f)
       results =
           let
             tagged = mkTagged model.query
@@ -104,7 +104,7 @@ view address model =
   in
   div [] [qInput, results, selection]
 
--- viewFriend : (Friend -> Attribute) -> Int -> (Int, Friend) -> Html
+viewFriend : (Friend -> Attribute) -> Int -> (Int, Friend) -> Html
 viewFriend handleSelect hl (i, f) =
     let attrs : List Attribute
         attrs = [handleSelect f]
