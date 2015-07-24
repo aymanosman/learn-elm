@@ -25,7 +25,7 @@ type alias Model = {
 
 init : Model
 init = {
-  query = "d"
+  query = ""
   , selected = Nothing
   , highlighted = 1
   , lastAction = NoOp
@@ -84,30 +84,34 @@ withLast update action model =
 -- View
 
 view : Signal.Address Action -> Model -> Html
-view address model =
-  let handleKeyDown =
-        onWithOptions "keydown" {preventDefault = True, stopPropagation = False}
-        (Json.customDecoder keyCode isArrow)
-        (\k -> Signal.message address <| translate2 k)
-      isArrow k =
-          if k == 38 || k == 40
+view addr model =
+  let options = {preventDefault = True, stopPropagation = False}
+      handleKeyDown f =
+        onWithOptions "keydown" options (Json.customDecoder keyCode isKey) f
+      isKey k =
+          if k == 38 || k == 40 || k == 13
           then Ok k
-          else Err "not arrow"
+          else Err "not interested in this key"
+
       qInput =
         input
-          [on "input" targetValue (Signal.message address << Query)
-          , handleKeyDown
+          [ on "input" targetValue (Signal.message addr << Query)
+          , handleKeyDown (\k -> Signal.message addr <|
+                case k of
+                    38 -> Prev
+                    40 -> Next
+                    13 -> EnterSelect)
           , value model.query
           , autofocus True
           ] []
-      handleSelect f = onClick address (ClickSelect f)
+      handleSelect f = onClick addr (ClickSelect f)
       results =
           let
             tagged = mkTagged model.query
             rendered =
                 Dict.values <|
                 Dict.map
-                (\k v -> viewFriend handleSelect model.highlighted (k,v))
+                (\k v -> viewFriend handleSelect (model.highlighted == k) v)
                 tagged
 
         in
@@ -119,25 +123,18 @@ view address model =
   in
   div [] [qInput, results, selection]
 
-viewFriend : (Friend -> Attribute) -> Int -> (Int, Friend) -> Html
-viewFriend handleSelect hl (i, f) =
+viewFriend : (Friend -> Attribute) -> Bool -> Friend -> Html
+viewFriend handleSelect hl f =
     let attrs : List Attribute
         attrs = [handleSelect f]
         hlStyle = style [("background-color", "salmon")]
         attrs2 : List Attribute
-        attrs2 = if hl == i then hlStyle::attrs else attrs
+        attrs2 = if hl then hlStyle::attrs else attrs
     in
     li attrs2 [text f.name, text f.photo]
 
 matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
-
-translate2 k =
-  case k of
-    38 -> Prev
-    40 -> Next
-    13 -> EnterSelect
-    _ -> NoOp
 
 friends : List Friend
 friends =
