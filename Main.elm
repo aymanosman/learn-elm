@@ -35,9 +35,6 @@ type alias Friend = {
   , photo : String
   }
 
-f : String -> String -> Friend
-f a b = Friend a b
-
 type Action = NoOp
   | Query String
   | ClickSelect Friend -- was Id and compiler wasn't helping -- change to Int and pick from Dict
@@ -76,7 +73,7 @@ update action model =
       then model
       else {model | highlighted <- model.highlighted - 1}
 
-withDebug update action model = (update action model) |> Debug.watch "State"
+withDebug update action model = Debug.watch "State" (update action model)
 
 withLast update action model =
     let m2 = update action model
@@ -138,7 +135,10 @@ translate2 k =
     _ -> NoOp
 
 friends : List Friend
-friends = [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
+friends =
+  let f a b = Friend a b
+  in
+  [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
 
 mkTagged : String -> Dict Int Friend
 mkTagged q =
@@ -149,4 +149,3 @@ mkTagged q =
                 s -> List.filter (matches s) friends
     in
     Dict.fromList <| List.map2 (,) [1..List.length filtered] filtered
-
