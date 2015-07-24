@@ -55,7 +55,7 @@ update action model =
   case action of
     NoOp -> model
     Query t ->
-      {model | highlighted <- 1, query <- t}
+      {model | highlighted <- 1, query <- t, selected <- Nothing}
     ClickSelect f ->
       select f model
     EnterSelect ->
@@ -106,13 +106,13 @@ view addr model =
           ] []
       handleSelect f = onClick addr (ClickSelect f)
       results =
-          let
-            tagged = mkTagged model.query
-            rendered =
-                Dict.values <|
-                Dict.map
-                (\k v -> viewFriend handleSelect (model.highlighted == k) v)
-                tagged
+        let
+        tagged = mkTagged model.query
+        rendered =
+            Dict.values <|
+            Dict.map
+            (\k v -> viewFriend handleSelect (model.highlighted == k) v)
+            tagged
 
         in
         ul [] rendered
@@ -121,7 +121,9 @@ view addr model =
           Nothing -> div [] []
           Just f -> text f.name
   in
-  div [] [qInput, results, selection]
+  case model.selected of
+    Nothing -> div [] [qInput, results]
+    Just f -> div [] [qInput, selection]
 
 viewFriend : (Friend -> Attribute) -> Bool -> Friend -> Html
 viewFriend handleSelect hl f =
