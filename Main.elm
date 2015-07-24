@@ -38,7 +38,7 @@ type alias Friend = {
 
 type Action = NoOp
   | Query String
-  | ClickSelect Friend -- was Id and compiler wasn't helping -- change to Int and pick from Dict
+  | ClickSelect Friend
   | EnterSelect
   | Next
   | Prev
