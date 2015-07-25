@@ -107,11 +107,11 @@ view address model =
       handleSelect f = onClick address (ClickSelect f)
       choiceList =
         let
-          tagged = mkTagged model.choices
+          tagged = List.map2 (,) [1..List.length model.choices] model.choices
           rendered =
-              Dict.values <|
-              Dict.map
-              (\k v -> viewFriend handleSelect (k == model.highlighted) v)
+              List.map
+              (\(k, v) ->
+                viewFriend handleSelect (k == model.highlighted) v)
               tagged
 
         in
@@ -152,10 +152,6 @@ mkChoices q =
     case q of
         "" -> []
         s -> List.filter (matches s) friends
-mkTagged : List Friend -> Dict Int Friend
-mkTagged filtered =
-    Dict.fromList <| List.map2 (,) [1..List.length filtered] filtered
-
 
 withDebug update action model = (update action model) |> Debug.watch "State"
 
