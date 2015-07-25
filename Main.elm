@@ -18,14 +18,16 @@ main =
 
 type alias Model = {
   query : String
-  , selected : Maybe Friend
+  , choices : List Friend
   , highlighted : Int
+  , selected : Maybe Friend
   , lastAction : Action
   }
 
 init : Model
 init = {
-  query = "d"
+  query = ""
+  , choices = []
   , selected = Nothing
   , highlighted = 1
   , lastAction = NoOp
@@ -53,12 +55,12 @@ type alias Id = String
 update : Action -> Model -> Model
 update action model =
   let select f m =
-        {m | query <- f.name, selected <- Just f}
+        {m | query <- f.name, selected <- Just f, choices <- []}
   in
   case action of
     NoOp -> model
     Query t ->
-      {model | highlighted <- 1, query <- t}
+      {model | highlighted <- 1, query <- t, choices <- mkChoices model.query}
     ClickSelect f ->
       select f model
     EnterSelect ->
@@ -144,13 +146,14 @@ translate2 k =
 friends : List Friend
 friends = [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
 
+mkChoices : String -> List Friend
+mkChoices q =
+    case q of
+        "" -> []
+        s -> List.filter (matches s) friends
 mkTagged : String -> Dict Int Friend
 mkTagged q =
-    let filtered : List Friend
-        filtered =
-            case q of
-                "" -> []
-                s -> List.filter (matches s) friends
+    let filtered = mkChoices q
     in
     Dict.fromList <| List.map2 (,) [1..List.length filtered] filtered
 
