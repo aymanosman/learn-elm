@@ -132,9 +132,9 @@ viewFriend handleSelect hl f =
     let
       attrs = [handleSelect f]
       hlStyle = style [("background-color", "salmon")]
-      attrs2 = if hl then hlStyle::attrs else attrs
     in
-    li attrs2 [text f.name, text f.photo]
+    li (if hl then hlStyle::attrs else attrs)
+    [text f.name, text f.photo]
 
 matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
