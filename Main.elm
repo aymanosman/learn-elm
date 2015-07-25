@@ -40,7 +40,7 @@ type alias Friend = {
 
 type Action = NoOp
   | Query String
-  | ClickSelect Friend -- was Id and compiler wasn't helping -- change to Int and pick from Dict
+  | ClickSelect Friend
   | EnterSelect
   | Next
   | Prev
@@ -51,22 +51,26 @@ type alias Id = String
 
 update : Action -> Model -> Model
 update action model =
-  let select f m =
-        {m | query <- f.name, selected <- Just f, choices <- []}
+  let select f =
+        {model | query <- f.name, selected <- Just f, choices <- []}
   in
   case action of
     NoOp -> model
     Query t ->
-      {model | selected <- Nothing, highlighted <- 1, query <- t, choices <- mkChoices model.query}
+      {model |
+        selected <- Nothing
+        , highlighted <- 1
+        , query <- t
+        , choices <- mkChoices t}
     ClickSelect f ->
-      select f model
+      select f
     EnterSelect ->
-        let tagged = mkTagged model.query
+        let tagged = mkTagged model.choices
         in case Dict.get model.highlighted tagged of
             Nothing -> model
-            Just f -> select f model
+            Just f -> select f
     Next ->
-      let numFriends = List.length <| Dict.toList (mkTagged model.query)
+      let numFriends = List.length <| Dict.toList (mkTagged model.choices)
       in
       if model.highlighted == numFriends
       then model
@@ -109,7 +113,7 @@ view address model =
       handleSelect f = onClick address (ClickSelect f)
       choiceList =
           let
-            tagged = mkTagged model.query
+            tagged = mkTagged model.choices
             rendered =
                 Dict.values <|
                 Dict.map
@@ -154,9 +158,7 @@ mkChoices q =
     case q of
         "" -> []
         s -> List.filter (matches s) friends
-mkTagged : String -> Dict Int Friend
-mkTagged q =
-    let filtered = mkChoices q
-    in
+mkTagged : List Friend -> Dict Int Friend
+mkTagged filtered =
     Dict.fromList <| List.map2 (,) [1..List.length filtered] filtered
 
