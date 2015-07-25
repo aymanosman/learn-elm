@@ -65,14 +65,14 @@ update action model =
     ClickSelect f ->
       select f
     EnterSelect ->
+        -- TODO: Iterate through a List (Int, Friend) instead of constructing a
+        -- Dict
         let tagged = mkTagged model.choices
         in case Dict.get model.highlighted tagged of
             Nothing -> model
             Just f -> select f
     Next ->
-      let numFriends = List.length <| Dict.toList (mkTagged model.choices)
-      in
-      if model.highlighted == numFriends
+      if model.highlighted == List.length model.choices
       then model
       else {model | highlighted <- model.highlighted + 1}
     Prev ->
@@ -112,13 +112,13 @@ view address model =
           ] []
       handleSelect f = onClick address (ClickSelect f)
       choiceList =
-          let
-            tagged = mkTagged model.choices
-            rendered =
-                Dict.values <|
-                Dict.map
-                (\k v -> viewFriend handleSelect model.highlighted (k,v))
-                tagged
+        let
+          tagged = mkTagged model.choices
+          rendered =
+              Dict.values <|
+              Dict.map
+              (\k v -> viewFriend handleSelect (k == model.highlighted) v)
+              tagged
 
         in
         ul [] rendered
@@ -127,13 +127,12 @@ view address model =
       Nothing -> div [] [qInput, choiceList]
       Just f -> div [] [qInput, text f.name]
 
-viewFriend : (Friend -> Attribute) -> Int -> (Int, Friend) -> Html
-viewFriend handleSelect hl (i, f) =
-    let attrs : List Attribute
-        attrs = [handleSelect f]
-        hlStyle = style [("background-color", "salmon")]
-        attrs2 : List Attribute
-        attrs2 = if hl == i then hlStyle::attrs else attrs
+viewFriend : (Friend -> Attribute) -> Bool -> Friend -> Html
+viewFriend handleSelect hl f =
+    let
+      attrs = [handleSelect f]
+      hlStyle = style [("background-color", "salmon")]
+      attrs2 = if hl then hlStyle::attrs else attrs
     in
     li attrs2 [text f.name, text f.photo]
 
