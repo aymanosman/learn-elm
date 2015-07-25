@@ -5,8 +5,10 @@ import Html.Events exposing (..)
 import String
 import Debug exposing (log)
 import Json.Decode as Json
+import Signal exposing (Address)
 import StartApp
 
+main : Signal Html
 main =
   StartApp.start {
     model = init
@@ -80,16 +82,9 @@ update action model =
       then model
       else {model | highlighted <- model.highlighted - 1}
 
-withDebug update action model = (update action model) |> Debug.watch "State"
-
-withLast update action model =
-    let m2 = update action model
-    in
-    {m2 | lastAction <- action}
-
 -- View
 
-view : Signal.Address Action -> Model -> Html
+view : Address Action -> Model -> Html
 view address model =
   let options = {preventDefault = True, stopPropagation = False}
       dec =
@@ -136,6 +131,7 @@ viewFriend handleSelect hl f =
     li (if hl then hlStyle::attrs else attrs)
     [text f.name, text f.photo]
 
+matches : String -> Friend -> Bool
 matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
 
@@ -161,3 +157,10 @@ mkTagged : List Friend -> Dict Int Friend
 mkTagged filtered =
     Dict.fromList <| List.map2 (,) [1..List.length filtered] filtered
 
+
+withDebug update action model = (update action model) |> Debug.watch "State"
+
+withLast update action model =
+    let m2 = update action model
+    in
+    {m2 | lastAction <- action}
