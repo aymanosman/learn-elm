@@ -67,10 +67,9 @@ update action model =
     ClickSelect f ->
       select f
     EnterSelect ->
-        -- TODO: Iterate through a List (Int, Friend) instead of constructing a
-        -- Dict
-        let tagged = mkTagged model.choices
-        in case Dict.get model.highlighted tagged of
+        let mf = List.head <|
+            List.drop (model.highlighted-1) model.choices
+        in case mf of
             Nothing -> model
             Just f -> select f
     Next ->
