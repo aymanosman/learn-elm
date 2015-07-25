@@ -60,7 +60,7 @@ update action model =
   case action of
     NoOp -> model
     Query t ->
-      {model | highlighted <- 1, query <- t, choices <- mkChoices model.query}
+      {model | selected <- Nothing, highlighted <- 1, query <- t, choices <- mkChoices model.query}
     ClickSelect f ->
       select f model
     EnterSelect ->
@@ -116,14 +116,10 @@ view address model =
 
         in
         ul [] rendered
-      selection  =
-        case model.selected of
-          Nothing -> div [] []
-          Just f -> text f.name
   in
   case model.selected of
       Nothing -> div [] [qInput, choiceList]
-      Just f -> div [] [qInput, selection]
+      Just f -> div [] [qInput, text f.name]
 
 viewFriend : (Friend -> Attribute) -> Int -> (Int, Friend) -> Html
 viewFriend handleSelect hl (i, f) =
