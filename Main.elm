@@ -87,14 +87,13 @@ withLast update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  let handleKeyDown f =
-        onWithOptions "keydown" {preventDefault = True, stopPropagation = False}
+  let options = {preventDefault = True, stopPropagation = False}
+      dec =
         (Json.customDecoder keyCode (\k ->
             if List.member k [13, 38, 40]
             then Ok k
             else Err "not handling that key"))
-        f
-
+      handleKeyDown f = onWithOptions "keydown" options dec f
       qInput =
         input
           [on "input" targetValue (Signal.message address << Query)
