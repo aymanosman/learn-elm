@@ -4,6 +4,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import String
 import Debug exposing (log)
+import Json.Decode as Json
 import StartApp
 
 main =
@@ -88,8 +89,11 @@ withLast update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   let handleKeyDown =
-        onWithOptions "keydown" {preventDefault = False, stopPropagation = False}
-        keyCode
+        onWithOptions "keydown" {preventDefault = True, stopPropagation = False}
+        (Json.customDecoder keyCode (\k ->
+            if List.member k [13, 38, 40]
+            then Ok k
+            else Err "not handling that key"))
         (\k -> Signal.message address <| translate2 k)
       qInput =
         input
