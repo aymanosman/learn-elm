@@ -58,10 +58,10 @@ update action model =
     NoOp -> model
     Query t ->
       {model |
-        selected <- Nothing
+        query <- t
+        , choices <- mkChoices t
         , highlighted <- 1
-        , query <- t
-        , choices <- mkChoices t}
+        , selected <- Nothing}
     ClickSelect f ->
       select f
     EnterSelect ->
