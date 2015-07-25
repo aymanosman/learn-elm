@@ -105,7 +105,7 @@ view address model =
           , autofocus True
           ] []
       handleSelect f = onClick address (ClickSelect f)
-      results =
+      choiceList =
           let
             tagged = mkTagged model.query
             rendered =
@@ -121,7 +121,9 @@ view address model =
           Nothing -> div [] []
           Just f -> text f.name
   in
-  div [] [qInput, results, selection]
+  case model.selected of
+      Nothing -> div [] [qInput, choiceList]
+      Just f -> div [] [qInput, selection]
 
 viewFriend : (Friend -> Attribute) -> Int -> (Int, Friend) -> Html
 viewFriend handleSelect hl (i, f) =
