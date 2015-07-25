@@ -38,9 +38,6 @@ type alias Friend = {
   , photo : String
   }
 
-f : String -> String -> Friend
-f a b = Friend a b
-
 type Action = NoOp
   | Query String
   | ClickSelect Friend -- was Id and compiler wasn't helping -- change to Int and pick from Dict
@@ -96,7 +93,12 @@ view address model =
             if List.member k [13, 38, 40]
             then Ok k
             else Err "not handling that key"))
-        (\k -> Signal.message address <| translate2 k)
+        (\k -> Signal.message address <|
+            case k of
+                38 -> Prev
+                40 -> Next
+                13 -> EnterSelect
+                _ -> NoOp)
       qInput =
         input
           [on "input" targetValue (Signal.message address << Query)
@@ -134,15 +136,18 @@ viewFriend handleSelect hl (i, f) =
 matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
 
-translate2 k =
-  case k of
-    38 -> Prev
-    40 -> Next
-    13 -> EnterSelect
-    _ -> NoOp
-
 friends : List Friend
-friends = [f "Ayman" "", f "Jesus" "", f "Dave" "", f "DJ" "", f "Dean" ""]
+friends = [
+    f "Ayman"
+    , f "Jesus"
+    , f "Dave"
+    , f "DJ"
+    , f "Daniel"
+    , f "Dean"
+    ]
+
+f : String -> Friend
+f a = Friend a ""
 
 mkChoices : String -> List Friend
 mkChoices q =
