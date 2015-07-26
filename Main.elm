@@ -81,51 +81,50 @@ update action model =
       then model
       else {model | highlighted <- model.highlighted - 1}
 
+
 -- View
 
 view : Address Action -> Model -> Html
-view address model =
-  let options = {preventDefault = True, stopPropagation = False}
-      dec =
-        (Json.customDecoder keyCode (\k ->
-            if List.member k [13, 38, 40]
-            then Ok k
-            else Err "not handling that key"))
-      handleKeyDown f = onWithOptions "keydown" options dec f
-      qInput =
-        input
-          [on "input" targetValue (Signal.message address << Query)
-          , handleKeyDown (\k -> Signal.message address <|
-                case k of
-                    38 -> Prev
-                    40 -> Next
-                    13 -> EnterSelect
-                    _ -> NoOp)
-          , value model.query
-          , autofocus True
-          ] []
-      handleSelect f = onClick address (ClickSelect f)
-      choiceList =
-        let
-          tagged = List.map2 (,) [1..List.length model.choices] model.choices
-          rendered =
-              List.map
-              (\(k, v) ->
-                viewFriend handleSelect (k == model.highlighted) v)
-              tagged
-
-        in
-        ul [] rendered
+view addr model =
+  let
+    options = {preventDefault = True, stopPropagation = False}
+    dec =
+      (Json.customDecoder keyCode (\k ->
+          if List.member k [13, 38, 40]
+          then Ok k
+          else Err "not handling that key"))
+    queryInput =
+      input
+        [on "input" targetValue (Signal.message addr << Query)
+        , onWithOptions "keydown" options dec (\k ->
+            Signal.message addr <|
+              case k of
+                  38 -> Prev
+                  40 -> Next
+                  13 -> EnterSelect)
+        , value model.query
+        , autofocus True
+        ] []
   in
   case model.selected of
-      Nothing -> div [] [qInput, choiceList]
-      Just f -> div [] [qInput, text f.name]
+    Just f -> div [] [queryInput, text f.name]
+    Nothing ->
+      let
+        tagged =
+          List.map2 (,) [1..List.length model.choices] model.choices
+        handleSelect f = onClick addr (ClickSelect f)
+        rendered =
+          List.map
+          (\(k, v) ->
+            viewFriend addr (k == model.highlighted) v)
+          tagged
+      in
+      div [] [queryInput, ul [] rendered]
 
-viewFriend : (Friend -> Attribute) -> Bool -> Friend -> Html
-viewFriend handleSelect hl f =
-    let
-      attrs = [handleSelect f]
-      hlStyle = style [("background-color", "salmon")]
+viewFriend : Address Action -> Bool -> Friend -> Html
+viewFriend addr hl f =
+    let attrs = [onClick addr (ClickSelect f)]
+        hlStyle = style [("background-color", "salmon")]
     in
     li (if hl then hlStyle::attrs else attrs)
     [text f.name, text f.photo]
@@ -136,24 +135,25 @@ matches s f =
 
 friends : List Friend
 friends = [
-    f "Ayman"
-    , f "Jesus"
-    , f "Dave"
-    , f "DJ"
-    , f "Daniel"
-    , f "Dean"
-    ]
+  f "Ayman"
+  , f "Jesus"
+  , f "Dave"
+  , f "DJ"
+  , f "Daniel"
+  , f "Dean"
+  ]
 
 f : String -> Friend
 f a = Friend a ""
 
 mkChoices : String -> List Friend
 mkChoices q =
-    case q of
-        "" -> []
-        s -> List.filter (matches s) friends
+  case q of
+      "" -> []
+      s -> List.filter (matches s) friends
 
-withDebug update action model = (update action model) |> Debug.watch "State"
+withDebug update action model =
+  Debug.watch "State" (update action model)
 
 withLast update action model =
     let m2 = update action model
