@@ -110,7 +110,6 @@ view addr model =
     Just f -> div [] [queryInput, text f.name]
     Nothing ->
       let
-        handleSelect f = onClick addr (ClickSelect f)
         mapIndexed f xs = List.map2 f [1..List.length xs] xs
         rendered =
           mapIndexed
