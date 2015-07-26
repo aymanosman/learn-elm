@@ -161,7 +161,18 @@ mkChoices : String -> List Friend
 mkChoices q =
   case q of
       "" -> []
-      s -> List.filter (matches s) friends
+      s ->
+        List.filter (matches s) friends
+        |> List.sortWith (\a b ->
+            let
+              getIndex q x =
+                case List.head <| String.indices q x of
+                  Nothing -> -1 -- should never happen
+                  Just n -> n
+              ia = getIndex q a.name
+              ib = getIndex q b.name
+            in
+            compare ia ib)
 
 withDebug update action model =
   Debug.watch "State" (update action model)
