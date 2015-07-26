@@ -127,7 +127,7 @@ viewFriend addr hl f =
         hlStyle = style [("background-color", "salmon")]
     in
     li (if hl then hlStyle::attrs else attrs)
-    [text f.name, text f.photo]
+    [text f.name, img [src f.photo] []]
 
 matches : String -> Friend -> Bool
 matches s f =
