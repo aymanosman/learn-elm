@@ -47,7 +47,6 @@ type Action = NoOp
   | Next
   | Prev
 
-type alias Id = String
 
 -- Update
 
@@ -114,18 +113,32 @@ view addr model =
         rendered =
           mapIndexed
           (\i f ->
-            viewFriend addr (i == model.highlighted) f)
+            viewFriend addr (i == model.highlighted)  model.query f)
           model.choices
       in
       div [] [queryInput, ul [] rendered]
 
-viewFriend : Address Action -> Bool -> Friend -> Html
-viewFriend addr hl f =
+-- viewFriend : Address Action -> Bool -> Friend -> Html
+viewFriend addr hl q f =
     let attrs = [onClick addr (ClickSelect f)]
         hlStyle = style [("background-color", "salmon")]
+        i =
+          case List.head <| String.indices q f.name of
+              Nothing -> 0
+              Just n -> n
+        qLength = String.length q
+        start = String.left i f.name
+        mid = String.slice i (i + qLength) f.name
+        end = String.dropLeft (i + qLength) f.name
+        person =
+          span [] [
+            text start
+            , strong [] [text mid]
+            , text end
+          ]
     in
     li (if hl then hlStyle::attrs else attrs)
-    [text f.name, img [src f.photo] []]
+    [person, img [src f.photo] []]
 
 matches : String -> Friend -> Bool
 matches s f =
