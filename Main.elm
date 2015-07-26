@@ -110,14 +110,13 @@ view addr model =
     Just f -> div [] [queryInput, text f.name]
     Nothing ->
       let
-        tagged =
-          List.map2 (,) [1..List.length model.choices] model.choices
         handleSelect f = onClick addr (ClickSelect f)
+        mapIndexed f xs = List.map2 f [1..List.length xs] xs
         rendered =
-          List.map
-          (\(k, v) ->
-            viewFriend addr (k == model.highlighted) v)
-          tagged
+          mapIndexed
+          (\i f ->
+            viewFriend addr (i == model.highlighted) f)
+          model.choices
       in
       div [] [queryInput, ul [] rendered]
 
