@@ -158,7 +158,7 @@ f a = Friend a ""
 mkChoices : String -> List Friend
 mkChoices q =
   let
-    earliestOccurence q a b =
+    earliestOccurrence q a b =
     let
         ia = getIndex q a.name
         ib = getIndex q b.name
@@ -169,7 +169,7 @@ mkChoices q =
       "" -> []
       s ->
         List.filter (matches s) friends
-        |> List.sortWith (earliestOccurence q)
+        |> List.sortWith (earliestOccurrence q)
 
 
 getIndex : String -> String -> Int
