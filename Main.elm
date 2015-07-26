@@ -122,10 +122,7 @@ view addr model =
 viewFriend addr hl q f =
     let attrs = [onClick addr (ClickSelect f)]
         hlStyle = style [("background-color", "salmon")]
-        i =
-          case List.head <| String.indices q f.name of
-              Nothing -> 0
-              Just n -> n
+        i = getIndex q f.name
         qLength = String.length q
         start = String.left i f.name
         mid = String.slice i (i + qLength) f.name
@@ -162,14 +159,10 @@ mkChoices q =
   let
     earliestOccurence q a b =
     let
-      getIndex q x =
-      case List.head <| String.indices q x of
-          Nothing -> -1 -- should never happen
-          Just n -> n
-      ia = getIndex q a.name
-      ib = getIndex q b.name
-  in
-  compare ia ib
+        ia = getIndex q a.name
+        ib = getIndex q b.name
+    in
+    compare ia ib
   in
   case q of
       "" -> []
@@ -178,7 +171,11 @@ mkChoices q =
         |> List.sortWith (earliestOccurence q)
 
 
--- Debug
+getIndex : String -> String -> Int
+getIndex q x =
+    case List.head <| String.indices (String.toLower q) (String.toLower x) of
+        Nothing -> -1 -- should never happen
+        Just n -> n
 
 withDebug update action model =
   Debug.watch "State" (update action model)
