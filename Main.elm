@@ -161,9 +161,12 @@ mkChoices q =
 
 getIndex : String -> String -> Int
 getIndex q x =
-    case List.head <| String.indices (String.toLower q) (String.toLower x) of
-        Nothing -> -1 -- should never happen
-        Just n -> n
+    let
+      mi = List.head <| String.indices (String.toLower q) (String.toLower x)
+    in
+    mi ? -1 -- Should never get this
+
+mv ? d = Maybe.withDefault d mv
 
 -- Data
 
