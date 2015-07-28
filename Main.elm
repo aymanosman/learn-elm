@@ -142,19 +142,6 @@ matches : String -> Friend -> Bool
 matches s f =
   String.contains (String.toLower s) (String.toLower f.name)
 
-friends : List Friend
-friends = [
-  f "Ayman"
-  , f "Jesus"
-  , f "Dave"
-  , f "DJ"
-  , f "Daniel"
-  , f "Dean"
-  ]
-
-f : String -> Friend
-f a = Friend a ""
-
 mkChoices : String -> List Friend
 mkChoices q =
   let
@@ -177,6 +164,23 @@ getIndex q x =
     case List.head <| String.indices (String.toLower q) (String.toLower x) of
         Nothing -> -1 -- should never happen
         Just n -> n
+
+-- Data
+
+friends : List Friend
+friends =
+  let f a = Friend a ""
+  in [
+  f "Ayman"
+  , f "Jesus"
+  , f "Dave"
+  , f "DJ"
+  , f "Daniel"
+  , f "Dean"
+  ]
+
+
+-- Debug
 
 withDebug update action model =
   Debug.watch "State" (update action model)
