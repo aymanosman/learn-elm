@@ -9,6 +9,10 @@ type alias Model =
   , path : String
   }
 
+type alias Input =
+  { path : String
+  }
+
 main : Signal Element
 main = view <~ model
 
@@ -25,18 +29,18 @@ paths = Signal.mailbox ""
 view : Model -> Element
 view m = show m
 
-update : Model -> Model
-update m =
+update : Input -> Model -> Model
+update i m =
   { m |
-      counts <- m.counts + 1
+    counts <- m.counts + 1
   }
-
-makeTitle n = "n = " ++ toString n
 
 port title : Signal String
 port title = makeTitle <~ counts
 
-makeHash n = "#/" ++ toString n
-
 port runTask : Signal (Task error ())
 port runTask = (History.setPath << makeHash) <~ counts
+
+makeTitle n = "n = " ++ toString n
+
+makeHash n = "#/" ++ toString n
