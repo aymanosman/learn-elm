@@ -10,10 +10,9 @@ delays = [0, 0.5, 1]
 type alias Input = List (Int, Int)
 
 seq : List (Signal a) -> Signal (List a)
-seq ss =
-  case ss of
-    [] -> Signal.constant []
-    x::xs -> Signal.map2 (::) x (seq xs)
+seq =
+  List.foldr (Signal.map2 (::))
+  (Signal.constant [])
 
 input : Signal Input
 input =
@@ -26,3 +25,4 @@ input =
 view : Input -> Element
 view i =
   show i
+
