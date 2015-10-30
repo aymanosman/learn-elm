@@ -6,12 +6,12 @@ import String
 import Debug exposing (log)
 import Json.Decode as Json
 import Signal exposing (Address)
-import StartApp
+import StartApp.Simple
 import Json.Decode as Json
 
 main : Signal Html
 main =
-  StartApp.start {
+  StartApp.Simple.start {
     model = init
     , view = view
     , update = withDebug << withLast <| update
